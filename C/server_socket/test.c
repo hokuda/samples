@@ -32,7 +32,8 @@ main()
     len = sizeof(client);
     printf("accepting socket\n");
 
-    while(1){}
+    //while(1){}
+    sleep(10);
 
     sock = accept(sock0, (struct sockaddr *)&client, &len);
     
