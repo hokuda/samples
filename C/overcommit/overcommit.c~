@@ -1,0 +1,18 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define GB 1073741824
+
+int main()
+{
+  char *p;
+  int i = 0;
+
+  do {
+    p = (char *)malloc(GB);
+  } while (p != NULL && ++i);
+
+  printf("%dGB\n", i);
+
+  exit(0);
+}
