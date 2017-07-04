@@ -1,6 +1,9 @@
 #! /usr/bin/python3
 # -*- coding:utf-8 -*-
 
+# decode PEM certificate
+# encode it to PEM again
+
 import sys
 import base64
 import pyasn1.codec.ber.decoder
