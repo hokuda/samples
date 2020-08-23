@@ -1,0 +1,28 @@
+package org.hokuda;
+
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+
+/**
+ * JAXActivator is an arbitrary name, what is important is that javax.ws.rs.core.Application is extended
+ * and the @ApplicationPath annotation is used with a "rest" path.  Without this the rest routes linked to
+ * from index.html would not be found.
+ */
+@ApplicationPath("/")
+public class MyApplication extends javax.ws.rs.core.Application {
+
+    @GET
+    @Path("/hello")
+    @Produces({ "text/html" })
+    public String getHello() {
+        String message = "<html><body>"
+            + "<h1>Hello World!</h1>"
+            + "<p>Hello Servlet(HelloServlet.java)</p>"
+            + "</body></html>";
+        return message;
+    }
+    
+}

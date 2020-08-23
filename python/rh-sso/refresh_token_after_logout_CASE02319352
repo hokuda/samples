@@ -1,0 +1,207 @@
+#!/root/pydev/py36-venv/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import requests
+from html.parser import HTMLParser
+
+
+# form のパラメータを取得するクラス
+class ExtractFormParser(HTMLParser):
+    
+    def __init__(self):
+        HTMLParser.__init__(self)
+        self.hiddens = []
+        self.action = ""
+        self.method = ""
+        self.text = ""
+        return
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "form":
+            attrs = dict(attrs)
+            if "action" in attrs:
+                self.action = attrs["action"]
+            if "method" in attrs:
+                self.method = attrs["method"]
+        if tag == "input":
+#            print attrs
+            attrs = dict(attrs)
+            if "type" in attrs:
+                if attrs["type"] == "hidden":
+                    self.hiddens.append((attrs["name"], attrs["value"]))
+                    return
+
+    def handle_data(self, data):
+        if self.action:
+            self.text += data
+            return
+
+
+def debug(arg):
+    sys.stderr.write(str(arg))
+    sys.stderr.write('\n')
+    sys.stderr.flush()
+    return
+
+
+### main ###
+
+
+############
+# ブラウザで RP にアクセスして返ってきた 302 に応答して IDP にリダイレクト -> login form ゲット
+############
+print(" >> 1. 認可コード発行・・・認可コードA")
+redirect_url = "http://localhost:8180/auth/realms/master/protocol/openid-connect/auth?response_type=code&client_id=app-jsp&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fapp-jsp%2Fprotected.jsp&state=41b501fa-89ca-46d8-aa3b-961d9badd77a&login=true&scope=openid"
+
+resp = requests.get(redirect_url)
+formparser = ExtractFormParser()
+formparser.feed(resp.text)
+formparser.close()
+cookies = resp.cookies
+action = formparser.action
+method = formparser.method
+hiddens = formparser.hiddens
+debug('URL to submit form: ' + action)
+
+# submit username/password -> get authentication code
+data={'username':'test1', 'password':'test1'}
+r = requests.post(action, data=data, cookies=cookies, allow_redirects=False)
+debug('Location: ' + r.headers['Location'])
+from urllib.parse import urlparse
+parsed_url = urlparse(r.headers['Location'])
+debug('parsed_url = ' + str(parsed_url))
+from urllib.parse import parse_qs
+
+# クッキーを保存する
+shared_cookies = r.cookies
+
+# AUTHORIZATION CODE 
+the_code_A = parse_qs(parsed_url.query)['code'][0]
+
+debug('＃＃＃ 認可コード = ' + the_code_A)
+#print('＃＃＃ 認可コード = ' + the_code_A)
+debug('＃＃＃ shared_cookies = ')
+print(r.cookies.get_dict())
+
+
+
+############
+# sleep
+############
+
+#SLEEP_IN_SEC = 59 # the code will be available, if Client login timeout==60
+#SLEEP_IN_SEC = 61 # the code will be expired, if Client login timeout==60
+SLEEP_IN_SEC = 1 # the code will be expired, if Client login timeout==60
+
+import time
+for i in range(SLEEP_IN_SEC):
+    time.sleep(1)
+    debug(i)
+    continue
+
+    
+############
+# get token A 
+############
+print(" >> 2. トークンの取得")
+
+client_id = "app-jsp"
+client_secret = "64bcedc6-727b-46f5-81b4-0d2119130793"
+
+import base64
+
+b64cred = base64.b64encode("{0}:{1}".format(client_id, client_secret).encode('utf-8')).decode('utf-8')
+
+url = 'http://localhost:8180/auth/realms/master/protocol/openid-connect/token'
+data = {'grant_type':'authorization_code',
+        'code':the_code_A,
+        'redirect_uri':'http://localhost:8080/app-jsp/protected.jsp',
+        'client_session_state':'IpgukFrjdsR03VxYZJ5v_6RnE3KOLsgqT_PhZwXj',
+        'client_session_host':'dhcp-193-78.nrt.redhat.com',
+        'scope':'offline_access'
+        }
+#headers = {'Authorization':'Basic YXBwLWpzcDpiY2U1ODE2ZC05OGM0LTQwNGYtYTE4ZC1iY2M1Y2IwMDVjNzk='}
+headers = {'Authorization':'Basic {0}'.format(b64cred)}
+r = requests.post(url, data=data, headers=headers)
+print(r.text)
+import json
+js = json.loads(r.text)
+refresh_token_A = js['refresh_token']
+access_token_A = js['access_token']
+print("############access token A ############= ", access_token_A)
+print("############refresh token A ############= ", refresh_token_A)
+
+
+
+
+############
+# introspection の実行
+############
+print("############access token A introspect before logout############")
+url = 'http://localhost:8180/auth/realms/master/protocol/openid-connect/token/introspect'
+data = {
+        'token':access_token_A,
+        }
+headers = {'Authorization':'Basic {0}'.format(b64cred),
+           'Content-Type':'application/x-www-form-urlencoded'
+            }
+r = requests.post(url, data=data, headers=headers)
+print(r.text)
+
+print("############refresh_token_A introspect before logout############")
+url = 'http://localhost:8180/auth/realms/master/protocol/openid-connect/token/introspect'
+data = {
+        'token':refresh_token_A,
+        }
+headers = {'Authorization':'Basic {0}'.format(b64cred),
+           'Content-Type':'application/x-www-form-urlencoded'
+            }
+r = requests.post(url, data=data, headers=headers)
+print(r.text)
+
+
+############
+# logout の実行
+############
+print(" >> 3. KEYCLOAK_IDENTITY を使ったログアウト処理")
+redirect_url = "http://localhost:8180/auth/realms/master/protocol/openid-connect/logout?redirect_uri=http://localhost:8080/app-jsp/protected.jsp"
+headers = {'Authorization':'Basic {0}'.format(b64cred)}
+
+# クッキーをつけてリクエストする
+resp = requests.get(redirect_url, headers=headers, cookies=shared_cookies, allow_redirects=False)
+#resp = requests.get(redirect_url, headers=headers, cookies=d)
+#print(resp.text)
+#import json
+#js = json.loads(resp.text)
+#refresh_token_A = js['refresh_token']
+#access_token_A = js['access_token']
+#print("############refresh token A ############= ", refresh_token_A)
+#print("############access token A ############= ", access_token_A)
+
+
+############
+# introspection の実行
+############
+print("############access token A introspect after logout############")
+url = 'http://localhost:8180/auth/realms/master/protocol/openid-connect/token/introspect'
+data = {
+        'token':access_token_A,
+        }
+headers = {'Authorization':'Basic {0}'.format(b64cred),
+           'Content-Type':'application/x-www-form-urlencoded'
+            }
+r = requests.post(url, data=data, headers=headers)
+print(r.text)
+
+print("############refresh_token_A introspect after logout############")
+url = 'http://localhost:8180/auth/realms/master/protocol/openid-connect/token/introspect'
+data = {
+        'token':refresh_token_A,
+        }
+headers = {'Authorization':'Basic {0}'.format(b64cred),
+           'Content-Type':'application/x-www-form-urlencoded'
+            }
+r = requests.post(url, data=data, headers=headers)
+print(r.text)
+
