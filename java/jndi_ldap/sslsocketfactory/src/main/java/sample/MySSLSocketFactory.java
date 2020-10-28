@@ -20,6 +20,7 @@ public class MySSLSocketFactory extends SSLSocketFactory {
     char[] trustStorePassword = "password".toCharArray();
     String keyStoreFile = "/home/hokuda/openssl/user1-rootca/server.jks";
     char[] keyStorePassword = "password".toCharArray();
+    char[] privateKeyPassword = "passwordXXXX".toCharArray();
         
     private SSLSocketFactory socketFactory;
 
@@ -28,7 +29,7 @@ public class MySSLSocketFactory extends SSLSocketFactory {
             KeyStore keyStore = KeyStore.getInstance("JKS");
             keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword);
             KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
-            keyManagerFactory.init(keyStore, keyStorePassword);
+            keyManagerFactory.init(keyStore, privateKeyPassword);
             KeyManager[] km = keyManagerFactory.getKeyManagers();
 
             KeyStore trustStore = KeyStore.getInstance("JKS");
