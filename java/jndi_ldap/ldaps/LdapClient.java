@@ -4,6 +4,7 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 import javax.naming.Context;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
@@ -27,7 +28,7 @@ public class LdapClient {
     	InitialDirContext dirContext = getDirContext();
 
     	SearchControls ctrls = new SearchControls();
-    	ctrls.setReturningAttributes(new String[] { "entrydn", "uid", "objectClass", "givenName", "sn","memberOf" });
+    	ctrls.setReturningAttributes(new String[] { "entrydn", "uid", "objectClass", "givenName", "sn","memberOf", "title" });
     	ctrls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
     	NamingEnumeration<javax.naming.directory.SearchResult> answers = dirContext.search("dc=redhat,dc=com", "(uid=*)", ctrls);

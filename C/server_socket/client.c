@@ -52,18 +52,59 @@ int main(void)
 
   //result = connect(sockfd , (struct sockaddr *)&dest , len);
   result = connect(sockfd , (struct sockaddr *)&dest , sizeof(struct sockaddr));
-  close(sockfd);
+  //close(sockfd);
+  printf("connected\n");
 
   if ( result == -1 ) {
     perror("oops: client2");
     exit(1);
   }
 
-  //write(sockfd,&ch,1);
-  write(sockfd,pkt4,173);
+  char buff[100];
+  /*
+  int rc = read(sockfd, buff, 5);
+  if (rc == -1)
+    {
+      printf("ファイル読み込みエラー\n");
+    }
+  else
+    {
+      buff[rc] = '\0';
+      printf("read:%d - %s\n", rc, buff);
+    }
+  */
+
+  printf("sleep in 10 sec.\n");
+  sleep(10);
+  char *hello = "hello from client\n";
+  write(sockfd,hello, strlen(hello));
+  printf("resumed.\n");
+
+  struct timeval tv;
+  tv.tv_sec = 30;
+  tv.tv_usec = 0;
+
+  fd_set writefds;
+  FD_SET(sockfd, &writefds);
+  int retval = select(2, NULL, &writefds, NULL, &tv);
+  if (retval == -1)
+    perror("select()");
+  else if (retval) {
+    printf("今、データが取得できました。\n");
+  }
+  /* FD_ISSET(0, &rfds) が true になる。*/
+  else {
+    printf("5 秒以内にデータが入力されませんでした。\n");
+    sleep(1);
+  }
+
+    //write(sockfd,&ch,1);
+    //write(sockfd,pkt4,173);
   
-  read(sockfd,&ch,1);
-  printf("char from server = %c \n",ch);
+  //read(sockfd,&ch,1);
+  //printf("char from server = %c \n",ch);
+  read(sockfd,buff,5);
+  printf("char from server = %s \n",buff);
   close(sockfd);
   exit(0);
 }
