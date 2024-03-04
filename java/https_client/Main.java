@@ -16,8 +16,10 @@ public class Main {
     
     public static void main(String[] args) {
 
-        System.out.println("usage: java test.Main url path_to_truststore password");
+        System.out.println("usage: java test.Main url");
         String urlstring = args[0];
+        System.out.println("URL=" + urlstring);
+        System.out.println("truststore=" + System.getProperties().get("javax.net.ssl.trustStore"));
 
         try {
             URL url = new URL(urlstring);

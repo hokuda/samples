@@ -1,0 +1,25 @@
+#surefire
+#Mon Dec 14 11:16:33 JST 2020
+testClassesDirectory=/home/hokuda/src/github/hokuda/samples/java/keycloak/simplehttp/target/test-classes
+classPathUrl.3=/home/opt/rh-sso-7.4/bin/client/keycloak-client-registration-cli-9.0.5.redhat-00001.jar
+classPathUrl.2=/home/hokuda/.m2/repository/junit/junit/3.8.1/junit-3.8.1.jar
+useManifestOnlyJar=true
+classPathUrl.1=/home/hokuda/src/github/hokuda/samples/java/keycloak/simplehttp/target/classes
+reportsDirectory=/home/hokuda/src/github/hokuda/samples/java/keycloak/simplehttp/target/surefire-reports
+classPathUrl.0=/home/hokuda/src/github/hokuda/samples/java/keycloak/simplehttp/target/test-classes
+providerConfiguration=org.apache.maven.surefire.junit.JUnit3Provider
+testSuiteDefinitionTestSourceDirectory=/home/hokuda/src/github/hokuda/samples/java/keycloak/simplehttp/src/test/java
+surefireClassPathUrl.1=/home/hokuda/.m2/repository/org/apache/maven/surefire/surefire-api/2.12.4/surefire-api-2.12.4.jar
+surefireClassPathUrl.0=/home/hokuda/.m2/repository/org/apache/maven/surefire/surefire-junit3/2.12.4/surefire-junit3-2.12.4.jar
+runOrder=filesystem
+useSystemClassLoader=true
+excludes0=**/*$*
+isTrimStackTrace=true
+tc.0=sample.AppTest
+enableAssertions=true
+includes2=**/*TestCase.java
+failIfNoTests=false
+includes1=**/*Test.java
+runStatisticsFile=/home/hokuda/src/github/hokuda/samples/java/keycloak/simplehttp/.surefire-241B07C99F5B9CCE5CEAD358A6E108AE372484CA
+includes0=**/Test*.java
+childDelegation=false

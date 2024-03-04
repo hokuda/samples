@@ -1,0 +1,5 @@
+<web-app>
+  <listener>
+    <listener-class>com.redhat.hokuda.Listener</listener-class>
+  </listener>
+</web-app>

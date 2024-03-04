@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
@@ -12,12 +13,12 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         if self not in cl:
             cl.append(self)
         for client in cl:
-            client.write_message('mgs=open
+            client.write_message("""mgs=open
 asdfasdfasdflkjaslkfjas;lkdfja;lkdsjf;ladsjflkadsjflajsdflkasjdf;lkadsjfa;lkdsjfa;lkdsjf;alkdsjf;alkjfd;ad
 ;alksdjflkajdsf;lkajdsf;lkajds;lfkajds;lkfajdsf;lkajsd;lkfjas;dkjfaslkfdjalkdsfja;lksjfa;lkdsjf;alkds
 ;alkjdflkajd;lkajdf;lkajdf;alkjdsf;lkajfd;lakjdf;lakjdf;lkajdf;lkajfd;lajdf;lkajdf;lkajdf;lakdjfa;lkdf
 hoge hoge hoge hoge hoge hoge hoge hoge hoge hoge hoge hoge hoge hoge hoge hoge hoge hoge hoge hoge hoge hoge
-aaaaaaaaaaaaaaaaaa')
+aaaaaaaaaaaaaaaaaa""")
  
     def on_message(self, message):
         for client in cl:
